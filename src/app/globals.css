@@ -90,6 +90,17 @@
   background-color: var(--primary);
   color: white;
 }
+.modal{
+  backdrop-filter: blur(1px);
+  background-color: #2d71f812;
+  z-index: 1000;
+}
+.modal-button{
+  background-color: #fc4a4a24;
+  font-weight: 100;
+  font-size: 17px;
+  width: fit-content;
+}
 .transition-2{
   transition: .15s;
 }
