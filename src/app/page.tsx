@@ -1,6 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
 "use client"
-
 import Image, { StaticImageData } from "next/image";
 import { useState } from "react";
 import "./boxicons-2.1.4 (2)/boxicons-2.1.4/css/boxicons.min.css";
@@ -8,6 +7,7 @@ import x100 from './100x100.png';
 import Modal from "./modal";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDollarSign, faBellConcierge, faCalendarDays, faBars, faBreadSlice, faCakeCandles, faCookie, faCookieBite, faClock, faPowerOff, faHamburger, faPizzaSlice, faLeaf, faIceCream, faGlassWhiskey } from "@fortawesome/free-solid-svg-icons";
+import ReceiptModal from "./receiptModal";
 
 const EmptySearch = () => {
   return(<>
@@ -27,10 +27,11 @@ export default function App() {
   }
   const [category, setCategory] = useState("All Menu");
   const [cart, setCart] = useState<CartItem[]>([]);
+  console.log(cart)
   const [searchTerm, setSearchTerm] = useState("");
   const date: Date = new Date();
-  const [modal, setModal] = useState(false)
-
+  const [modal, setModal] = useState(false);
+  const [receiptModal, setReceiptModal] = useState(false);
   
   const hour: number = date.getHours() % 12 || 12; 
   let minute: string;
@@ -203,7 +204,9 @@ export default function App() {
   const removeFromCart = (name: string) => {
     setCart((prevCart) => prevCart.filter((cartItem) => cartItem.name !== name));
   };
-
+  const emptyCart = ()=>{
+    setCart([])
+  }
   const calculateTotal = () => {
     const subtotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
     const tax = subtotal * 0.1;
@@ -214,7 +217,6 @@ export default function App() {
   const { subtotal, tax, discount, total } = calculateTotal();
 
   const filteredItems = items[category].filter((item) => item.name.toLowerCase().includes(searchTerm.toLowerCase()));
-  console.log(filteredItems);  
 
   return (
     <div className="flex flex-wrap p-0 h-full">
@@ -296,6 +298,7 @@ export default function App() {
         </div>
 
       </div>
+
       {/*Cart Confirmation */}
       <Modal isOpen={modal} onClose={()=>setModal(false)} >
         <h1 className="font-extrabold text-3xl">Cart Confirmation</h1> <div className='w-[110.7%] h-0.5 -mx-6 bg-black mb-5'/>
@@ -356,11 +359,13 @@ export default function App() {
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3 mt-3">
-            <button className="px-5 py-2 bg-secondary flexBetween rounded-4xl cursor-pointer text-white" onClick={removeFromCart()}> Cancel Order</button>
-            <button className="py-2 bg-primary flexCenter rounded-4xl cursor-pointer text-white">Proceed</button>
+            <button className="px-5 py-2 bg-secondary flexBetween rounded-4xl cursor-pointer text-white" onClick={()=> {emptyCart(); setModal(false)}}> Cancel Order</button>
+            <button className="py-2 bg-primary flexCenter blue-hover rounded-4xl cursor-pointer text-white" onClick={()=> setReceiptModal(true)}>Proceed</button>
           </div>
         </div>
       </Modal>
+
+      <ReceiptModal isOpen={receiptModal} onClose={() => setReceiptModal(false)} cart={cart} />
       {/*Cart Section Code */}
       <div className="w-[32%] bg-gray-100 pt-4 shadow-lg md:relative right-0 top-0 h-[100vh] fixed z-50 flexBetween items-stretch flex-col overflow-hidden">
         <div className="h-[60vh] overflow-hidden">
