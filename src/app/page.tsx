@@ -29,7 +29,6 @@ export default function App() {
   const [searchTerm, setSearchTerm] = useState("");
   const date: Date = new Date();
   const [modal, setModal] = useState(false);
-  const [receiptModal, setReceiptModal] = useState(false);
   
   const hour: number = date.getHours() % 12 || 12; 
   const minute: string = date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes().toLocaleString();
@@ -215,8 +214,8 @@ export default function App() {
 
   const filteredItems = items[category].filter((item) => item.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
+  const printFrameRef = useRef<HTMLIFrameElement | null>(null);
   const handlePrint = () => {
-     const printFrameRef = useRef<HTMLIFrameElement | null>(null);
 
     if (!printFrameRef.current) return;
 
@@ -231,30 +230,94 @@ export default function App() {
         <head>
           <title>Print Receipt</title>
           <style>
-            body { font-family: Arial, sans-serif; padding: 20px; }
-            h2 { text-align: center; }
-            table { width: 100%; border-collapse: collapse; }
-            th, td { border: 1px solid #000; padding: 8px; text-align: left; }
-            .total { font-weight: bold; }
+            *{
+              font-family: Poppins;
+            }
+            body{
+              max-width: 60mm;
+            }
+            .text-sm {
+              font-size: 14px;
+            }
+            .text-lg {
+              font-size: 18px;
+            }
+            .font-bold {
+                font-weight: 700;
+            }
+            .font-semibold {
+                font-weight: 600;
+            }
+            .mb-4 {
+              margin-bottom: 16px;
+            }
+            .my-2 {
+                margin-block: 8px;
+            }
+            .text-center {
+              text-align: center;
+            }
+            .flex {
+                display: flex;
+            }
+            .flex-row {
+                flex-direction: row;
+            }
+            .justify-between {
+                justify-content: space-between;
+            }
+            .text-gray-600 {
+                color: #4a5565;
+            }
+            .gap-2 {
+                gap: 8px;
+            }
+            .w-full {
+                width: 100%;
+            }
+            .border-b-2 {
+                border-bottom-style: dashed;
+                border-bottom-width: 2px;
+            }
+            .ps-10 {
+                padding-inline-start: 40px;
+            }
+            
           </style>
         </head>
         <body>
-          <h2>Receipt</h2>
-          <table>
-            <tr><th>Item</th><th>Qty</th><th>Price</th></tr>
-            ${cart.map(
-              (item: { name: string; quantity: number; price: number }) => `
-                <tr>
-                  <td>${item.name}</td>
-                  <td>${item.quantity}</td>
-                  <td>$${item.price.toFixed(2)}</td>
-                </tr>`
-            ).join("")}
-          </table>
-          <p>Subtotal: $${subtotal.toFixed(2)}</p>
-          <p>Tax: $${tax.toFixed(2)}</p>
-          <p>Discount: $${discount.toFixed(2)}</p>
-          <p class="total">Total: $${total.toFixed(2)}</p>
+          <div style='width: 60mm; margin: 0 auto;'>
+            <h2 class="text-lg font-semibold mb-4 text-center">
+              Bro Fathi's POS <br /> Inside Fabulous Shop <br /> Opposite AYBAM Filling Station, Oyo, Oyo State
+            </h2>
+
+            <div class="text-sm">
+              <div class="flex justify-between">
+                <p>${new Date().toLocaleDateString()}</p>
+                <div class="text-gray-600 flex gap-2">
+                  ${time} <span>${AMPM}</span>
+                </div>
+              </div>
+              <p class="text-center">Host Abdul Samad</p>
+              <div class="w-full flex justify-between border-b-2">
+                <span class="font-semibold">QTY</span>
+                <span class="font-semibold">DESC.</span>
+                <span class="font-semibold">AMT</span>
+              </div>
+              ${cart.map((item, index) => (`
+                <div key=${index} class="flex justify-between flex-row my-2">
+                  <p>${item.quantity}</p>
+                  <p>${item.name}</p>
+                  <p>$${item.price.toFixed(2)}</p>
+                </div>
+              `))}
+              <div class="ps-10">
+                <h3 class="font-bold my-4">Amount: $${subtotal.toFixed(2)}</h3>
+                <h3 class="font-bold my-4">Tax: $${tax.toFixed(2)}</h3>
+                <h3 class="font-bold my-4">Discount: $${discount.toFixed(2)}</h3>
+                <h1 class="font-bold my-4">Total: $${total.toFixed(2)}</h1>
+              </div>
+            </div>
           <script>
             window.onload = function() { window.print(); };
           </script>
@@ -262,9 +325,11 @@ export default function App() {
       </html>
     `);
     doc.close();
+  }
 
   return (
     <div className="flex flex-wrap p-0 h-full">
+      
       <div className="w-[68%] bg-gray-100 y-100 p-4 z-50 h-[100vh] overflow-y-scroll scroll-smooth">
          <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-4">
@@ -345,6 +410,7 @@ export default function App() {
       </div>
 
       {/*Cart Confirmation */}
+      <iframe ref={printFrameRef} style={{ display: "none" }} />
       <Modal isOpen={modal} onClose={()=>setModal(false)}>
         <h1 className="font-extrabold text-3xl">Cart Confirmation</h1> <div className='w-[110.7%] h-0.5 -mx-6 bg-black mb-5'/>
 
@@ -405,7 +471,7 @@ export default function App() {
           </div>
           <div className="grid grid-cols-2 gap-3 mt-3">
             <button className="px-5 py-2 bg-secondary flexBetween rounded-4xl cursor-pointer text-white" onClick={()=> {emptyCart(); setModal(false)}}> Cancel Order</button>
-            <button className="py-2 bg-primary flexCenter blue-hover rounded-4xl cursor-pointer text-white" onClick={()=> {setReceiptModal(true); setModal(false)}}>Proceed</button>
+            <button className="py-2 bg-primary flexCenter blue-hover rounded-4xl cursor-pointer text-white" onClick={()=> {handlePrint(); setModal(false)}}>Proceed</button>
           </div>
         </div>
       </Modal>
