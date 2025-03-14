@@ -1,20 +1,18 @@
 /* eslint-disable @next/next/no-img-element */
 "use client"
 import Image, { StaticImageData } from "next/image";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import "./boxicons-2.1.4 (2)/boxicons-2.1.4/css/boxicons.min.css";
 import x100 from './100x100.png';
 import Modal from "./modal";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDollarSign, faBellConcierge, faCalendarDays, faBars, faBreadSlice, faCakeCandles, faCookie, faCookieBite, faClock, faPowerOff, faHamburger, faPizzaSlice, faLeaf, faIceCream, faGlassWhiskey } from "@fortawesome/free-solid-svg-icons";
-import ReceiptModal from "./receiptModal";
 
 const EmptySearch = () => {
   return(<>
     <div>Product not found</div>
   </>)
 }
-
 
 export default function App() {
 
@@ -34,8 +32,7 @@ export default function App() {
   const [receiptModal, setReceiptModal] = useState(false);
   
   const hour: number = date.getHours() % 12 || 12; 
-  let minute: string;
-  minute  = date.getMinutes() < 10 ? minute = '0' + date.getMinutes() : minute = date.getMinutes().toLocaleString() ;
+  const minute: string = date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes().toLocaleString();
   
   const time: string = `${hour} : ${minute}`;
   const AMPM: string = date.getHours() >= 12 ? 'AM' :  'PM';
@@ -218,6 +215,54 @@ export default function App() {
 
   const filteredItems = items[category].filter((item) => item.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
+  const handlePrint = () => {
+     const printFrameRef = useRef<HTMLIFrameElement | null>(null);
+
+    if (!printFrameRef.current) return;
+
+    const iframe = printFrameRef.current;
+    const doc = iframe.contentDocument || iframe.contentWindow?.document;
+    if (!doc) return;
+
+    // 📝 Write the receipt content into the iframe
+    doc.open();
+    doc.write(`
+      <html>
+        <head>
+          <title>Print Receipt</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 20px; }
+            h2 { text-align: center; }
+            table { width: 100%; border-collapse: collapse; }
+            th, td { border: 1px solid #000; padding: 8px; text-align: left; }
+            .total { font-weight: bold; }
+          </style>
+        </head>
+        <body>
+          <h2>Receipt</h2>
+          <table>
+            <tr><th>Item</th><th>Qty</th><th>Price</th></tr>
+            ${cart.map(
+              (item: { name: string; quantity: number; price: number }) => `
+                <tr>
+                  <td>${item.name}</td>
+                  <td>${item.quantity}</td>
+                  <td>$${item.price.toFixed(2)}</td>
+                </tr>`
+            ).join("")}
+          </table>
+          <p>Subtotal: $${subtotal.toFixed(2)}</p>
+          <p>Tax: $${tax.toFixed(2)}</p>
+          <p>Discount: $${discount.toFixed(2)}</p>
+          <p class="total">Total: $${total.toFixed(2)}</p>
+          <script>
+            window.onload = function() { window.print(); };
+          </script>
+        </body>
+      </html>
+    `);
+    doc.close();
+
   return (
     <div className="flex flex-wrap p-0 h-full">
       <div className="w-[68%] bg-gray-100 y-100 p-4 z-50 h-[100vh] overflow-y-scroll scroll-smooth">
@@ -300,8 +345,7 @@ export default function App() {
       </div>
 
       {/*Cart Confirmation */}
-        <ReceiptModal isOpen={receiptModal} onClose={() => setReceiptModal(false)} cart={cart} time={time} AMPM={AMPM} calculateTotal={calculateTotal}/>
-      <Modal isOpen={modal} onClose={()=>setModal(false)} >
+      <Modal isOpen={modal} onClose={()=>setModal(false)}>
         <h1 className="font-extrabold text-3xl">Cart Confirmation</h1> <div className='w-[110.7%] h-0.5 -mx-6 bg-black mb-5'/>
 
         <div className="space-y-4 overflow-scroll flow-scroll h-[45vh] mt-1 px-5 pt-2  hide-scroll ">
@@ -361,7 +405,7 @@ export default function App() {
           </div>
           <div className="grid grid-cols-2 gap-3 mt-3">
             <button className="px-5 py-2 bg-secondary flexBetween rounded-4xl cursor-pointer text-white" onClick={()=> {emptyCart(); setModal(false)}}> Cancel Order</button>
-            <button className="py-2 bg-primary flexCenter blue-hover rounded-4xl cursor-pointer text-white" onClick={()=> {setReceiptModal(true): setModal(false)}} >Proceed</button>
+            <button className="py-2 bg-primary flexCenter blue-hover rounded-4xl cursor-pointer text-white" onClick={()=> {setReceiptModal(true); setModal(false)}}>Proceed</button>
           </div>
         </div>
       </Modal>
