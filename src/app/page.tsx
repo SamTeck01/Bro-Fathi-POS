@@ -300,6 +300,7 @@ export default function App() {
       </div>
 
       {/*Cart Confirmation */}
+        <ReceiptModal isOpen={receiptModal} onClose={() => setReceiptModal(false)} cart={cart} time={time} AMPM={AMPM} calculateTotal={calculateTotal}/>
       <Modal isOpen={modal} onClose={()=>setModal(false)} >
         <h1 className="font-extrabold text-3xl">Cart Confirmation</h1> <div className='w-[110.7%] h-0.5 -mx-6 bg-black mb-5'/>
 
@@ -360,12 +361,11 @@ export default function App() {
           </div>
           <div className="grid grid-cols-2 gap-3 mt-3">
             <button className="px-5 py-2 bg-secondary flexBetween rounded-4xl cursor-pointer text-white" onClick={()=> {emptyCart(); setModal(false)}}> Cancel Order</button>
-            <button className="py-2 bg-primary flexCenter blue-hover rounded-4xl cursor-pointer text-white" onClick={()=> setReceiptModal(true)}>Proceed</button>
+            <button className="py-2 bg-primary flexCenter blue-hover rounded-4xl cursor-pointer text-white" onClick={()=> {setReceiptModal(true): setModal(false)}} >Proceed</button>
           </div>
         </div>
       </Modal>
 
-      <ReceiptModal isOpen={receiptModal} onClose={() => setReceiptModal(false)} cart={cart} />
       {/*Cart Section Code */}
       <div className="w-[32%] bg-gray-100 pt-4 shadow-lg md:relative right-0 top-0 h-[100vh] fixed z-50 flexBetween items-stretch flex-col overflow-hidden">
         <div className="h-[60vh] overflow-hidden">
