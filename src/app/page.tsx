@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client"
 import Image, { StaticImageData } from "next/image";
+import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import "./boxicons-2.1.4 (2)/boxicons-2.1.4/css/boxicons.min.css";
 import x100 from './100x100.png';
@@ -25,7 +26,7 @@ export default function App() {
   }
   const [category, setCategory] = useState("All Menu");
   const [cart, setCart] = useState<CartItem[]>([]);
-  console.log(cart)
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const date: Date = new Date();
   const [modal, setModal] = useState(false);
@@ -335,6 +336,10 @@ export default function App() {
     doc.close();
   }
 
+  const logout =()=>{
+    router.push('/login')
+  }
+
   return (
     <div className="flex flex-wrap p-0 h-full">
       
@@ -356,7 +361,7 @@ export default function App() {
 
           <div className="rounded-4xl color-secondary flexCenter gap-2 ps-1 pe-3 py-1 bg-white cursor-pointer">
             <span className="w-26 h-10 flexCenter rounded-4xl px-2" style={{backgroundColor: 'rgba(28, 131, 112, 0.137)'}}>Open Order</span>
-            <div className=" w-11 h-10 flexCenter rounded-4xl ms-1 -me-2" style={{backgroundColor: 'rgba(28, 131, 112, 0.08)'}}><FontAwesomeIcon icon={faPowerOff} /></div>
+            <div className=" w-11 h-10 flexCenter rounded-4xl ms-1 -me-2" style={{backgroundColor: 'rgba(28, 131, 112, 0.08)'}} onClick={logout} ><FontAwesomeIcon icon={faPowerOff} /></div>
           </div>
         </div>
 
