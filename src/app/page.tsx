@@ -38,7 +38,7 @@ export default function App() {
 
   const items: {
     [key: string]: { name: string; category: string; catColor: string; price: number; img: StaticImageData }[];
-  } = {
+    } = {
     'All Menu': [
       { name: "Beef Crowich", category: "Sandwich", catColor: 'rgb(255, 255, 0, 0.3)', price: 5.5, img: x100 },
       { name: "Buttermelt Croissant", category: "Pastry", catColor: '#1c837023', price: 4.0, img: x100 },
@@ -228,13 +228,13 @@ export default function App() {
     doc.write(`
       <html>
         <head>
-          <title>Print Receipt</title>
           <style>
             *{
               font-family: Poppins;
             }
             body{
               max-width: 60mm;
+              height: auto;
             }
             .text-sm {
               font-size: 14px;
@@ -263,6 +263,9 @@ export default function App() {
             .flex-row {
                 flex-direction: row;
             }
+            .flex-col {
+                flex-direction: column;
+            }
             .justify-between {
                 justify-content: space-between;
             }
@@ -271,6 +274,9 @@ export default function App() {
             }
             .gap-2 {
                 gap: 8px;
+            }
+            .-gap-10{
+              gap: -10px;
             }
             .w-full {
                 width: 100%;
@@ -294,9 +300,9 @@ export default function App() {
             <div class="text-sm">
               <div class="flex justify-between">
                 <p>${new Date().toLocaleDateString()}</p>
-                <div class="text-gray-600 flex gap-2">
+                <p class="flex gap-2">
                   ${time} <span>${AMPM}</span>
-                </div>
+                </p>
               </div>
               <p class="text-center">Host Abdul Samad</p>
               <div class="w-full flex justify-between border-b-2">
@@ -304,13 +310,15 @@ export default function App() {
                 <span class="font-semibold">DESC.</span>
                 <span class="font-semibold">AMT</span>
               </div>
-              ${cart.map((item, index) => (`
-                <div key=${index} class="flex justify-between flex-row my-2">
-                  <p>${item.quantity}</p>
-                  <p>${item.name}</p>
-                  <p>$${item.price.toFixed(2)}</p>
-                </div>
-              `))}
+              <div class='flex flex-col -gap-10'> 
+                ${cart.map((item, index) => (`
+                  <div key=${index} class="flex justify-between flex-row my-2">
+                    <p>${item.quantity}</p>
+                    <p>${item.name}</p>
+                    <p>$${item.price.toFixed(2)}</p>
+                  </div>
+                `))}
+              </div>
               <div class="ps-10">
                 <h3 class="font-bold my-4">Amount: $${subtotal.toFixed(2)}</h3>
                 <h3 class="font-bold my-4">Tax: $${tax.toFixed(2)}</h3>
