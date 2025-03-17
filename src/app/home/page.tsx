@@ -40,7 +40,7 @@ export default function App() {
   const items: {
     [key: string]: { name: string; category: string; catColor: string; price: number; img: StaticImageData }[];
     } = {
-    'All Menu': [
+    /*'All Menu': [
       { name: "Beef Crowich", category: "Sandwich", catColor: 'rgb(255, 255, 0, 0.3)', price: 5.5, img: x100 },
       { name: "Buttermelt Croissant", category: "Pastry", catColor: '#1c837023', price: 4.0, img: x100 },
       { name: "Cereal Cream Donut", category: "Donut", catColor: 'rgba(255, 166, 0, 0.25)', price: 2.45, img: x100 },
@@ -82,7 +82,7 @@ export default function App() {
       { name: "Quinoa Salad", category: "Salads", catColor: '#228b2255', price: 7.0, img: x100 },
       { name: "Pistachio Ice Cream", category: "Ice Cream", catColor: '#fffacd55', price: 3.0, img: x100 },
       { name: "Milkshake", category: "Drinks", catColor: '#ff450055', price: 4.0, img: x100 },
-    ],
+    ],*/
   
     // Separate categories
     Breads: [
@@ -159,6 +159,13 @@ export default function App() {
       { name: "Orange Juice", category: "Drinks", catColor: '#ff450055', price: 3.0, img: x100 },
       { name: "Milkshake", category: "Drinks", catColor: '#ff450055', price: 4.0, img: x100 },],
   };
+
+  const allMenu = Object.values(items)
+    .flat()
+    .reduce((acc: { name: string; category: string; catColor: string; price: number; img: StaticImageData }[], item) => {
+      if (!acc.some((i) => i.name === item.name)) acc.push(item);
+      return acc;
+  }, []);
   
   const getCategoryIcon = (cat: string) => {
     switch (cat) {
@@ -213,7 +220,7 @@ export default function App() {
 
   const { subtotal, tax, discount, total } = calculateTotal();
 
-  const filteredItems = items[category].filter((item) => item.name.toLowerCase().includes(searchTerm.toLowerCase()));
+  const filteredItems = (category === 'All Menu' ? allMenu : items[category]).filter((item) => item.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
   const printFrameRef = useRef<HTMLIFrameElement | null>(null);
   const handlePrint = () => {
@@ -367,7 +374,7 @@ export default function App() {
 
         <div className="w-full overflow-x-scroll hide-scroll scroll-smooth">
           <div className="flex flex-row gap-4 space-x-4 mb-4 w-fit whitespace-nowrap">
-            {Object.keys(items).map((cat) => (
+            {['All Menu', ...Object.keys(items)].map((cat) => (
               <div
                 key={cat}
                 className={`transition-2 rounded-xl bg-white p-3 h-36 w-36 cursor-pointer ${
@@ -386,7 +393,9 @@ export default function App() {
                 <br />
                 {cat}
                 <br />
-                <span className="text-gray-500">{items[cat].length} Items</span>
+                <span className="text-gray-500">{cat === "All Menu"
+                ? Object.values(items).reduce((total, arr) => total + arr.length, 0)
+                : items[cat].length} Items</span>
               </div>
             ))}
           </div>
